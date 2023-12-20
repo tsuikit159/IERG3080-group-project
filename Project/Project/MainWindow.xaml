@@ -22,7 +22,7 @@
             </Ellipse>
 
             <Ellipse
-            x:Name="Sun"    
+            x:Name="Sun"  
             Width="300"
             Height="300"
             Fill="Red"

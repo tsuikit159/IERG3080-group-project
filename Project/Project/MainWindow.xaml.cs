@@ -25,7 +25,17 @@ namespace Project
         private float speed = 2, speedx, speedy;
         private MouseButtonEventArgs mouseEventArgs;
         private int tickcount = 0;
-
+        public static bool CheckCollision(Ellipse e1, Ellipse e2)
+        {
+            var r1 = e1.ActualWidth / 2;
+            var x1 = Canvas.GetLeft(e1) + r1;
+            var y1 = Canvas.GetTop(e1) + r1;
+            var r2 = e2.ActualWidth / 2;
+            var x2 = Canvas.GetLeft(e2) + r2;
+            var y2 = Canvas.GetTop(e2) + r2;
+            var d = new Vector(x2 - x1, y2 - y1);
+            return d.Length <= r1 + r2;
+        }
         public MainWindow()
         {
             InitializeComponent();
@@ -73,11 +83,30 @@ namespace Project
                     // Code to execute when the gametimer reaches 500 milliseconds
                     IShapeFactory factory = new CircleFactory((Player.Width)/4);
                     Shape circle = factory.CreateShape();
+                    Ellipse checkellipse = circle as Ellipse;
                     // Move the circle to the opposite of the player side
 
                     double circleX = (playerX - Math.Cos(oppositeAngle) - (Player.Width / 4) *2);
                     double circleY = (playerY - Math.Sin(oppositeAngle) - (Player.Width / 4) * 2 );
 
+                    foreach (var x in GameScreen.Children.OfType<Ellipse>().ToList())
+                    {
+                        if (CheckCollision(checkellipse,x))
+                        {
+                            if (Player.Width > x.Width)
+                            {
+                                GameScreen.Children.Remove(x);
+                                circle.Width += 2;
+                                circle.Height += 2;
+                            }
+                            else
+                            {
+                                GameScreen.Children.Remove(circle);
+                                x.Width += 2;
+                                x.Height += 2;
+                            }
+                        }
+                    }
                     Canvas.SetLeft(circle, circleX);
                     Canvas.SetTop(circle, circleY);
                     GameScreen.Children.Add(circle);
@@ -106,22 +135,17 @@ namespace Project
         }
         public void collide()
         {
-            List<Ellipse> toRemove = new List<Ellipse>();
-            foreach (var x in GameScreen.Children.OfType<Ellipse>())
+            foreach (var x in GameScreen.Children.OfType<Ellipse>().ToList())
             {
                 if ((string)x.Tag == "circle")
                 {
-                    Rect PlayerHitBox = new Rect(Canvas.GetLeft(Player), Canvas.GetTop(Player), Player.Width, Player.Height);
-                    Rect Collide = new Rect(Canvas.GetLeft(x), Canvas.GetTop(x), x.Width, x.Height);
-                    
-
-                    if (PlayerHitBox.IntersectsWith(Collide))
+                    if (CheckCollision(Player, x))
                     {
                         if (Player.Width > x.Width)
                         {
-                            toRemove.Add(x);
-                            Player.Width += Player.Width/10;
-                            Player.Height += Player.Width/10;
+                            GameScreen.Children.Remove(x);
+                            Player.Width += Player.Width / 10;
+                            Player.Height += Player.Width / 10;
                         }
                         else
                         {
@@ -129,26 +153,21 @@ namespace Project
                             this.Close();
                         }
                     }
-                }
-                else if ((string)x.Tag == "Sun")
-                {
-                    Rect PlayerHitBox = new Rect(Canvas.GetLeft(Player), Canvas.GetTop(Player), Player.Width, Player.Height);
-                    Rect Collide = new Rect(Canvas.GetLeft(x), Canvas.GetTop(x), x.Width, x.Height);
-                    if (PlayerHitBox.IntersectsWith(Collide))
+                    else if (CheckCollision(Sun, x))
                     {
-                        MessageBox.Show("Game Over");
-                        this.Close();
+                        GameScreen.Children.Remove(x);
+                        Sun.Width += 2;
+                        Sun.Height += 2;
                     }
+
                 }
-            }
-            for (int i = 0; i < toRemove.Count; i++)
-            {
-                GameScreen.Children.Remove(toRemove[i]);
+                else if (CheckCollision(Player, Sun))
+                {
+                    MessageBox.Show("Game Over");
+                    this.Close();
+                }
+                
             }
         }
-    }
-        
-
-
-    
-}
+    }  
+}    
