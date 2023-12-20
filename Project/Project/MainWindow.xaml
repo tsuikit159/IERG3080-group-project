@@ -13,8 +13,8 @@
 
             <Ellipse
             x:Name="Player"
-            Width="50"
-            Height="50"
+            Width="20"
+            Height="20"
             Fill="Blue"
             Canvas.Left="898"
             Canvas.Top="375" RenderTransformOrigin="2.745,-2.521"
@@ -23,11 +23,11 @@
 
             <Ellipse
             x:Name="Sun"    
-            Width="100"
-            Height="100"
+            Width="300"
+            Height="300"
             Fill="Red"
-            Canvas.Left="573"
-            Canvas.Top="350" HorizontalAlignment="Left" VerticalAlignment="Center"
+            Canvas.Left="490"
+            Canvas.Top="250" HorizontalAlignment="Left" VerticalAlignment="Top"
             >
             </Ellipse>
 

@@ -32,9 +32,10 @@ namespace Circle
                 Height = radius * 2,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2,
-                Fill = Brushes.Black 
+                Fill = Brushes.Black ,
+                
             };
-
+            circle.Tag = "circle";
             return circle;
         }
     }

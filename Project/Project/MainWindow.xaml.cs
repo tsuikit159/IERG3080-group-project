@@ -34,7 +34,7 @@ namespace Project
 
             canvas = new Canvas();
 
-            GameScreen.Focus();
+            Player.Focus();
             Window.AddHandler(PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(MouseDown), true);
             Window.AddHandler(PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(MouseUp), true);
             timer.Interval = TimeSpan.FromMilliseconds(16);
@@ -44,6 +44,7 @@ namespace Project
         }
         private void GameTick(object sender, EventArgs e)
         {
+            collide();
             if (MousePressed == true)
             {   // get the mouse position
                 tickcount ++;
@@ -70,13 +71,12 @@ namespace Project
                 {
                     tickcount = 0;
                     // Code to execute when the gametimer reaches 500 milliseconds
-                    double radius = 10;
-                    IShapeFactory factory = new CircleFactory(radius);
+                    IShapeFactory factory = new CircleFactory((Player.Width)/4);
                     Shape circle = factory.CreateShape();
                     // Move the circle to the opposite of the player side
 
-                    double circleX = (playerX - Math.Cos(oppositeAngle) - radius * 2);
-                    double circleY = (playerY - Math.Sin(oppositeAngle) - radius * 2);
+                    double circleX = (playerX - Math.Cos(oppositeAngle) - (Player.Width / 4) *2);
+                    double circleY = (playerY - Math.Sin(oppositeAngle) - (Player.Width / 4) * 2 );
 
                     Canvas.SetLeft(circle, circleX);
                     Canvas.SetTop(circle, circleY);
@@ -104,8 +104,50 @@ namespace Project
                 Console.WriteLine("mouse released");
             }
         }
+        public void collide()
+        {
+            List<Ellipse> toRemove = new List<Ellipse>();
+            foreach (var x in GameScreen.Children.OfType<Ellipse>())
+            {
+                if ((string)x.Tag == "circle")
+                {
+                    Rect PlayerHitBox = new Rect(Canvas.GetLeft(Player), Canvas.GetTop(Player), Player.Width, Player.Height);
+                    Rect Collide = new Rect(Canvas.GetLeft(x), Canvas.GetTop(x), x.Width, x.Height);
+                    
+
+                    if (PlayerHitBox.IntersectsWith(Collide))
+                    {
+                        if (Player.Width > x.Width)
+                        {
+                            toRemove.Add(x);
+                            Player.Width += Player.Width/10;
+                            Player.Height += Player.Width/10;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Game Over");
+                            this.Close();
+                        }
+                    }
+                }
+                else if ((string)x.Tag == "Sun")
+                {
+                    Rect PlayerHitBox = new Rect(Canvas.GetLeft(Player), Canvas.GetTop(Player), Player.Width, Player.Height);
+                    Rect Collide = new Rect(Canvas.GetLeft(x), Canvas.GetTop(x), x.Width, x.Height);
+                    if (PlayerHitBox.IntersectsWith(Collide))
+                    {
+                        MessageBox.Show("Game Over");
+                        this.Close();
+                    }
+                }
+            }
+            for (int i = 0; i < toRemove.Count; i++)
+            {
+                GameScreen.Children.Remove(toRemove[i]);
+            }
+        }
     }
-    
+        
 
 
     
