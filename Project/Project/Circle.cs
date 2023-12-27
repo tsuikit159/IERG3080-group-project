@@ -30,9 +30,9 @@ namespace Circle
             {
                 Width = radius * 2,
                 Height = radius * 2,
-                Stroke = Brushes.Black,
+                Stroke = Brushes.White,
                 StrokeThickness = 2,
-                Fill = Brushes.Black ,
+                Fill = Brushes.White ,
                 
             };
             circle.Tag = "circle";

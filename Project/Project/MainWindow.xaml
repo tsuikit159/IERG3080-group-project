@@ -8,30 +8,32 @@
         mc:Ignorable="d"
         Title="Project" Height="800" Width="1280">
     <Grid>
-        <Canvas x:Name="GameScreen"  Height="800" Width="1280" MouseDown="MouseDown" MouseUp="MouseUp">
+
+        <Canvas x:Name="GameScreen"  Height="800" Width="1280" MouseDown="MouseDown" MouseUp="MouseUp" Margin="-10,-15,10,0" Background="Black">
             <!--Draw a circle with blue size-->
 
             <Ellipse
-            x:Name="Player"
-            Width="20"
-            Height="20"
-            Fill="Blue"
-            Canvas.Left="898"
-            Canvas.Top="375" RenderTransformOrigin="2.745,-2.521"
-        >
+                x:Name="Player"
+                Width="5"
+                Height="5"
+                Fill="Blue"
+                Canvas.Left="982"
+                Canvas.Top="400" RenderTransformOrigin="2.745,-2.521"
+>
             </Ellipse>
 
             <Ellipse
-            x:Name="Sun"  
-            Width="300"
-            Height="300"
-            Fill="Red"
-            Canvas.Left="490"
-            Canvas.Top="250" HorizontalAlignment="Left" VerticalAlignment="Top"
-            >
+    x:Name="Sun"  
+    Width="288"
+    Height="288"
+    Fill="Red"
+    Canvas.Left="496"
+    Canvas.Top="256" HorizontalAlignment="Left" VerticalAlignment="Center"
+    >
             </Ellipse>
 
         </Canvas>
+
     </Grid>
 
 
