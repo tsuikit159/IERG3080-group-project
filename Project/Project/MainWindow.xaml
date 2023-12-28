@@ -6,19 +6,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Project"
         mc:Ignorable="d"
-        Title="Project" Height="800" Width="1280">
+        Title="Project" Height="1080" Width="1920">
     <Grid>
 
-        <Canvas x:Name="GameScreen"  Height="800" Width="1280" MouseDown="MouseDown" MouseUp="MouseUp" Margin="-10,-15,10,0" Background="Black">
+        <Canvas x:Name="GameScreen"  Height="1080" Width="1920" MouseDown="MouseDown" MouseUp="MouseUp" Margin="-10,-15,10,0" Background="Black">
             <!--Draw a circle with blue size-->
 
             <Ellipse
                 x:Name="Player"
-                Width="5"
-                Height="5"
+                Width="10"
+                Height="10"
                 Fill="Blue"
-                Canvas.Left="982"
-                Canvas.Top="400" RenderTransformOrigin="2.745,-2.521"
+                Canvas.Left="1551"
+                Canvas.Top="467" RenderTransformOrigin="2.745,-2.521" HorizontalAlignment="Left" VerticalAlignment="Top"
 >
             </Ellipse>
 
@@ -27,8 +27,8 @@
     Width="288"
     Height="288"
     Fill="Red"
-    Canvas.Left="496"
-    Canvas.Top="256" HorizontalAlignment="Left" VerticalAlignment="Center"
+    Canvas.Left="816"
+    Canvas.Top="396" HorizontalAlignment="Left" VerticalAlignment="Top"
     >
             </Ellipse>
 

@@ -15,6 +15,7 @@ using System;
 using System.Numerics;
 using System.Reflection.Metadata;
 using Vector = System.Windows.Vector;
+using System.Diagnostics.Metrics;
 namespace Project
 {
     /// <summary>
@@ -22,6 +23,7 @@ namespace Project
     /// </summary>
     public partial class MainWindow : Window
     {
+        Label timerLabel = new Label();
         private DispatcherTimer timer = new DispatcherTimer();
         private DispatcherTimer gametimer = new DispatcherTimer();
         private Canvas canvas;
@@ -29,11 +31,11 @@ namespace Project
         private float speed = 2, speedx, speedy;
         private MouseButtonEventArgs mouseEventArgs;
         private int tickcount = 0;
+        private int Gamecount = 0;
         Random Rnd = new Random();
-        double angle = 0; // Angle of rotation
         double angularSpeed = 0.01; // Angular speed of rotation
-
-        double radius = 100; // Radius of the circular orbit
+        double G = 1f; // Gravitational constant
+        double range = 100; // Radius of the circular orbit
         public static bool CheckCollision(Ellipse e1, Ellipse e2)
         {
             var r1 = e1.ActualWidth / 2;
@@ -45,7 +47,20 @@ namespace Project
             var d = new Vector(x2 - x1, y2 - y1);
             return d.Length <= r1 + r2;
         }
-
+        public void TimerScreen()
+        {
+            
+            timerLabel.Content = "00:00:00";
+            timerLabel.FontSize = 50;
+            timerLabel.HorizontalAlignment = HorizontalAlignment.Left;
+            timerLabel.VerticalAlignment = VerticalAlignment.Center;
+            timerLabel.Margin = new Thickness(10, 0, 0, 0);
+            timerLabel.Foreground = Brushes.White;
+            // Add the timer label to the left side of the screen
+            Grid.SetColumn(timerLabel, 0);
+            Grid.SetRow(timerLabel, 0);
+            GameScreen.Children.Add(timerLabel);
+        }
 
         public MainWindow()
         {
@@ -60,22 +75,30 @@ namespace Project
             Player.Focus();
             Window.AddHandler(PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(MouseDown), true);
             Window.AddHandler(PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(MouseUp), true);
-            for (int i = 0; i < rnd.Next(120,130); i++)
+            for (int i = 0; i < rnd.Next(110,120); i++)
             {
                 GenerateCircle();
             }
 
-
-            timer.Interval = TimeSpan.FromMilliseconds(5);
+            TimerScreen();
+            timer.Interval = TimeSpan.FromMilliseconds(10);
             timer.Tick += GameTick;
             timer.Start();
+            
 
         }
 
         private void GameTick(object sender, EventArgs e)
         {
 
-            
+            Gamecount++;
+            Int32 Gamecounter = Gamecount / 100;
+            timerLabel.Content = Gamecounter.ToString();
+            if (Gamecounter == 60)
+            {
+                MessageBox.Show("You Win");
+                this.Close();
+            }
             collide();
             CheckCircleCollision();
             UpdatePosition();
@@ -203,8 +226,8 @@ namespace Project
                         double radiusSum = circle1.ActualWidth / 2 + circle2.ActualWidth / 2;
                         if (distance <= radiusSum)
                         {
-                            double newX = circle1X + radiusSum + 5; // Move the circle 10 units further
-                            double newY = circle1Y + radiusSum + 5; // Move the circle 10 units further
+                            double newX = circle1X + radiusSum + 1; // Move the circle 10 units further
+                            double newY = circle1Y + radiusSum + 1; // Move the circle 10 units further
                             Canvas.SetLeft(circle2, newX);
                             Canvas.SetTop(circle2, newY);
                         }
@@ -267,35 +290,64 @@ namespace Project
         }
         // Update the position of the player and enemies in each frame
 
+
         private void UpdatePosition()
         {
             double angle = Math.Atan2(Canvas.GetTop(Sun) - Canvas.GetTop(Player), Canvas.GetLeft(Sun) - Canvas.GetLeft(Player));
-            foreach (var x in GameScreen.Children.OfType<Ellipse>().ToList().Where(x => (string)x.Tag != "Sun"))
+            foreach (var x in GameScreen.Children.OfType<Ellipse>().ToList().Where(x => (string)x.Tag != "Sun" && x != Sun))
             {
-                // Calculate the position of the player
-                double speedx = (Canvas.GetLeft(x) + x.Width * Math.Cos(angle)) / 9000;
-                double speedy = (Canvas.GetTop(x) + x.Height * Math.Sin(angle)) / 9000;
-                // Calculate the position of the circle
 
-                // Calculate the gravitational force
-                double distance = Math.Sqrt(Math.Pow(Canvas.GetLeft(Sun) - Canvas.GetLeft(x), 2) + Math.Pow(Canvas.GetTop(Sun) - Canvas.GetTop(x), 2));
-                double gravitationalForce = 1000 / Math.Pow(distance, 2);
+                double Gangle = Math.Atan2(Canvas.GetTop(Sun) - Canvas.GetTop(Player), Canvas.GetLeft(Sun) - Canvas.GetLeft(Player));
+                double dx = Canvas.GetLeft(Sun) - Canvas.GetLeft(Player);
+                double dy = Canvas.GetTop(Sun) - Canvas.GetTop(Player);
+                double distance = Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
+
 
                 // Calculate the acceleration
-                double accelerationX = gravitationalForce * Math.Cos(angle);
-                double accelerationY = gravitationalForce * Math.Sin(angle);
+
 
                 // Update the speed
-                speedx += accelerationX;
-                speedy += accelerationY;
+
 
                 // Set the position of the player and the circle
                 Canvas.SetLeft(x, Canvas.GetLeft(x) + speedx);
                 Canvas.SetTop(x, Canvas.GetTop(x) + speedy);
             }
-
-           
+            for (int i = 0; i < GameScreen.Children.Count; i++)
+            {
+                if (GameScreen.Children[i] is Ellipse circle && (string)circle.Tag == "circle")
+                {
+                    double dx = Canvas.GetLeft(Sun) - Canvas.GetLeft(circle);
+                    double dy = Canvas.GetTop(Sun) - Canvas.GetTop(circle);
+                    double distance = Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
+                    double force = G * (Player.Width * circle.Width) / Math.Pow(distance, 2);
+                    double acceleration = force / (Player.Width * circle.Width);
+                    double velocity = Math.Sqrt(acceleration * distance);
+                    double velocityX = velocity * Math.Cos((double)Math.Atan2(dy, dx));
+                    double velocityY = velocity * Math.Sin((double)Math.Atan2(dy, dx));
+                    double newX = Canvas.GetLeft(circle) + velocityX;
+                    double newY = Canvas.GetTop(circle) + velocityY;
+                    if (distance > range)
+                    {
+                        double PlayerX = Canvas.GetLeft(Player) + velocityX;
+                        double PlayerY = Canvas.GetTop(Player) + velocityY;
+                        Canvas.SetLeft(Player, PlayerX);
+                        Canvas.SetTop(Player, PlayerY);
+                    }
+                    else
+                    {
+                        double PlayerX = Canvas.GetLeft(Player) -velocityX;
+                        double PlayerY = Canvas.GetTop(Player) - velocityY;
+                        Canvas.SetLeft(Player, PlayerX);
+                        Canvas.SetTop(Player, PlayerY);
+                    }
+                    Canvas.SetLeft(circle, newX);
+                    Canvas.SetTop(circle, newY);
+                    
+                }
+            }
         }
+
         double GenerateRandomDouble()
         {
             return Rnd.NextDouble() * 2 - 1;
