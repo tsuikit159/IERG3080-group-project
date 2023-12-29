@@ -47,6 +47,17 @@ namespace Project
             var d = new Vector(x2 - x1, y2 - y1);
             return d.Length <= r1 + r2;
         }
+        public static bool CheckCollision<T>(T e1, T e2) where T : FrameworkElement
+        {
+            var r1 = e1.ActualWidth / 2;
+            var x1 = Canvas.GetLeft(e1) + r1;
+            var y1 = Canvas.GetTop(e1) + r1;
+            var r2 = e2.ActualWidth / 2;
+            var x2 = Canvas.GetLeft(e2) + r2;
+            var y2 = Canvas.GetTop(e2) + r2;
+            var d = new Vector(x2 - x1, y2 - y1);
+            return d.Length <= r1 + r2;
+        }
         public void TimerScreen()
         {
             
@@ -94,7 +105,7 @@ namespace Project
             Gamecount++;
             Int32 Gamecounter = Gamecount / 100;
             timerLabel.Content = Gamecounter.ToString();
-            if (Gamecounter == 60)
+            if (Gamecounter == 30)
             {
                 MessageBox.Show("You Win");
                 this.Close();
